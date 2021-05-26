@@ -74,5 +74,7 @@ zip ${TEMP}/Notebook.zip ${UUID}.* ${UUID}/*
 
 cp ${TEMP}/Notebook.zip .
 
-find ${TEMP} -ls
+#DEBUG find ${TEMP} -ls
+
 rm -rf ${TEMP}
+
