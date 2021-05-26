@@ -6,6 +6,9 @@ Creates a reMarkable Notebook from multiple PDF files.
 In the example folder.
 PDF are not correctly ingested.
 
+## Screenshot
+[Screenshot]{example/Notebook.png}
+
 ## Installation
 Create a /var/lib/pdf2rmnotebook folder and copy there the UUID* files from var/lib 
 
