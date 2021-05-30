@@ -2,6 +2,9 @@
 
 Creates a reMarkable Notebook from multiple PDF files.
 
+# Changelog
+Version 1.1 - All pdf pages are converted, no need to split file ( needs pdfinfo command )
+
 ## Sample 
 In the example folder.
 PDF are not correctly ingested.
