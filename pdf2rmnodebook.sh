@@ -19,6 +19,8 @@
 
 set -o nounset                              # Treat unset variables as an error
 
+Version=1.1
+
 NAME=$(basename $0 .sh)
 VARLIB=/var/lib/${NAME}
 test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
@@ -46,21 +48,29 @@ mkdir ${NB}/${UUID}
 cp ${VARLIB}/UUID.pagedata ${NB}/${UUID}.pagedata
 cp ${VARLIB}/UUID_HEAD.content ${NB}/${UUID}.content
 
-for _P in $*
+for _P in "$@"
 do
 
   test ${_page} -ne 0 && echo , >> ${NB}/${UUID}.content
 
   echo Working on file: ${_P}
-  cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
-  echo "image ${_P} 1 0 0 .73" >> ${TEMP}/P_${_page}.hcl
+  read x _NP <<< $(pdfinfo ${_P} | grep Pages: )
+  _PP=1
+  while [[ ${_PP} -le ${_NP} ]]
+  do
+    test ${_page} -ne 0 && echo , >> ${NB}/${UUID}.content
+    cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
+    echo "image ${_P} ${_PP} 0 0 .73" >> ${TEMP}/P_${_page}.hcl
 #  drawj2d -T rmapi -o ${TEMP}/P_${_page}.zip ${TEMP}/P_${_page}.hcl
-  drawj2d -T rm -o ${NB}/${UUID}/${_page}.rm ${TEMP}/P_${_page}.hcl
-  cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID}/${_page}-metadata.json
+    drawj2d -T rm -o ${NB}/${UUID}/${_page}.rm ${TEMP}/P_${_page}.hcl
+    cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID}/${_page}-metadata.json
 
-  echo -n \"$(uuidgen)\" >> ${NB}/${UUID}.content
+    echo -n \"$(uuidgen)\" >> ${NB}/${UUID}.content
 
-  _page=$(( _page + 1 ))
+    _PP=$(( $_PP + 1 ))
+    _page=$(( _page + 1 ))
+  done
+#  _page=$(( _page + 1 ))
 
 done
 
