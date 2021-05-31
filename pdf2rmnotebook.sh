@@ -1,29 +1,52 @@
 #!/bin/bash - 
 #===============================================================================
 #
-#          FILE: reShapes.sh
+#          FILE: ./pdf2rmnotebook.sh
 # 
-#         USAGE: ./reShapes.sh 
+#         USAGE: ./pdf2rmnotebook.sh file.pdf [...]
 # 
 #   DESCRIPTION: Build multi page reMarkable Notebook from PDF Files
 # 
 #       OPTIONS: ---
-#  REQUIREMENTS: ---
+#  REQUIREMENTS: pdfinfo
 #          BUGS: ---
 #         NOTES: ---
 #        AUTHOR: Alberto Varesio (JCN), jcn9000@gmail.com
 #  ORGANIZATION: 
 #       CREATED: 05/26/2021 01:24:45 PM
-#      REVISION:  ---
+#      REVISION: 1.1   : Multi page PDF conversion
+#                1.1.1 : Usage and Version options
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
 
-Version=1.1
+Version=1.1.1
 
 NAME=$(basename $0 .sh)
+
+Usage() {
+  echo $NAME: $Version
+  echo usage: $NAME file.pdf [...]
+}
+
 VARLIB=/var/lib/${NAME}
 test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
+
+while getopts "hV" opt
+do
+  case $opt in
+    h)
+      Usage
+      exit 0
+      ;;
+    V)
+      echo $NAME: $Version
+      exit 0
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
 
 TEMP=$(mktemp -d)
 
