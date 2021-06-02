@@ -127,7 +127,7 @@ do
   do
     test ${_page} -ne 0 && echo , >> ${NB}/${UUID_N}.content
     cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
-    echo "image ${_P} ${_PP} 0 0 .73" >> ${TEMP}/P_${_page}.hcl
+    echo "image {${_P}} ${_PP} 0 0 .73" >> ${TEMP}/P_${_page}.hcl
 #  drawj2d -T rmapi -o ${TEMP}/P_${_page}.zip ${TEMP}/P_${_page}.hcl
 
     UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
