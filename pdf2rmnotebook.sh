@@ -3,11 +3,11 @@
 #
 #          FILE: ./pdf2rmnotebook.sh
 # 
-#         USAGE: ./pdf2rmnotebook.sh file.pdf [...]
+#         USAGE: ./pdf2rmnotebook.sh [options] file.pdf [...]
 # 
 #   DESCRIPTION: Build multi page reMarkable Notebook from PDF Files
 # 
-#       OPTIONS: ---
+#       OPTIONS: See Usage()
 #  REQUIREMENTS: drawj2d, pdfinfo
 #          BUGS: ---
 #         NOTES: ---
