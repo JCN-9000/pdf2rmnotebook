@@ -3,7 +3,7 @@
 
 - Shapes.zip  rM Notebook with shapes
 - Shapes.pdf  Same Notebook sent by email
-- XShapes.pdf pdf file generated usind xournalpp
+- XShapes.pdf pdf file generated using xournalpp
 - shape.hcl   hcl file using Shapes.pdf
 - xshape.hcl  hcl file using XShapes.pdf
 
@@ -15,6 +15,6 @@
 
 # Screenshots
 
-![BAD](Shape.png)
-![GOOD](XShape.png)
+![BAD](Shapes.png)
+![GOOD](XShapeis.png)
 
