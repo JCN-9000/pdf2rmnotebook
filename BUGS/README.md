@@ -16,5 +16,5 @@
 # Screenshots
 
 ![BAD](Shapes.png)
-![GOOD](XShapeis.png)
+![GOOD](XShapes.png)
 
