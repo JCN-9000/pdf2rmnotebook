@@ -20,7 +20,7 @@
 
 set -o nounset                              # Treat unset variables as an error
 
-Version=1.2.0
+Version=2.1.0
 
 NAME=$(basename $0 .sh)
 TEMP=$(mktemp -d)
@@ -34,6 +34,7 @@ $NAME [options] file.pdf [...]
 options:
   -h    this page (help)
   -q    Less messages to stdout (quiet)
+  -s SCALE    Scale value. Def=0.75 
   -v    More messages to stdout (verbose)
   -V    Display version (Version)
 EOD
@@ -46,16 +47,20 @@ Cleanup() {
 # === Main ===
 trap Cleanup EXIT
 
-VARLIB=/var/lib/${NAME}
-test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
-
 QVFLAG='-q'
 VERBOSE=false
 DEBUG=false
+IMAGE=false
+SCALE=.75
 
-while getopts "hqvV" opt
+while getopts "dhiqvs:V" opt
 do
   case $opt in
+    d)
+      # Fake some values
+      DEBUG=true
+      NAME=pdf2rmnotebook
+      ;;
     q)
       QVFLAG='-q'
       VERBOSE=false
@@ -63,6 +68,12 @@ do
     h)
       Usage
       exit 0
+      ;;
+    i)
+      IMAGE=true
+      ;;
+    s)  # Default is .75 so 1n A$ pdf scales to a rM page
+      SCALE=$OPTARG
       ;;
     v)
       QVFLAG='-v'
@@ -85,6 +96,10 @@ do
   esac
 done
 shift $((OPTIND-1))
+
+VARLIB=/var/lib/${NAME}
+test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
+test -d ${VARLIB} || { echo "Error - Incorrect Installation: ${VARLIB} not available" ; exit 1 ; }
 
 if [[ $# -le 0 ]]
 then
@@ -120,29 +135,52 @@ do
   $VERBOSE && echo Working on file: ${_P}
   test -f "${_P}" || { echo "${_P}: No such file or directory." ; Usage ; exit 1 ; }
 
-  # Get Pages from file, loop over all of them
-  read x _NP <<< $(pdfinfo "${_P}" | grep Pages: )
-  _PP=1
-  while [[ ${_PP} -le ${_NP} ]]
-  do
-    test ${_page} -ne 0 && echo , >> ${NB}/${UUID_N}.content
-    cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
-    echo "image {${_P}} ${_PP} 0 0 .73" >> ${TEMP}/P_${_page}.hcl
-#  drawj2d -T rmapi -o ${TEMP}/P_${_page}.zip ${TEMP}/P_${_page}.hcl
+  FILETYPE=$(file -b --mime-type "${_P}")
 
-    UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
-#  rmapi interface to reMarkable cloud renames pages from UUID to page number while up/downloading
-#  so we need to use the same convention in naming pages: 0.rm 1.rm ... instead of UUIDs
-#  which are used internally in the rM (see ~/.local/share/remarkable/xochitl/ )
-#  It is indeed easier to have page numbers instead of random UUIDs referenced elsewhere
-    drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_N}/${_page}.rm ${TEMP}/P_${_page}.hcl
-    cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_N}/${_page}-metadata.json
+  case $FILETYPE in
+    image/jpeg | image/png)
+      _NP=1
+      IMAGE=true
+      ;;
 
-    echo -n \"${UUID_P}\" >> ${NB}/${UUID_N}.content
+    application/pdf )
 
-    _PP=$(( $_PP + 1 ))
-    _page=$(( _page + 1 ))
-  done
+      # Get Pages from file, loop over all of them
+      read x _NP <<< $(pdfinfo "${_P}" | grep Pages: )
+      ;;
+  esac
+
+    _PP=1
+    while [[ ${_PP} -le ${_NP} ]]
+    do
+      test ${_page} -ne 0 && echo , >> ${NB}/${UUID_N}.content
+      cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
+
+      case $FILETYPE in
+        image/jpeg | image/png )
+          echo "moveto 12 12"  >>  ${TEMP}/P_${_page}.hcl
+          echo "image {${_P}} 200 0 0 $SCALE " >> ${TEMP}/P_${_page}.hcl
+          ;;
+        application/pdf )
+          # Scale image: Usually PDF is A4/Letter, rM is smaller
+          echo "image {${_P}} ${_PP} 0 0 $SCALE" >> ${TEMP}/P_${_page}.hcl
+          ;;
+      esac
+
+      UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
+  #  rmapi interface to reMarkable cloud renames pages from UUID to page number while up/downloading
+  #  so we need to use the same convention in naming pages: 0.rm 1.rm ... instead of UUIDs
+  #  which are used internally in the rM (see ~/.local/share/remarkable/xochitl/ )
+  #  It is indeed easier to have page numbers instead of random UUIDs referenced elsewhere
+      drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_N}/${_page}.rm ${TEMP}/P_${_page}.hcl
+      cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_N}/${_page}-metadata.json
+
+      echo -n \"${UUID_P}\" >> ${NB}/${UUID_N}.content
+
+      _PP=$(( $_PP + 1 ))
+      _page=$(( _page + 1 ))
+    done
+
 done
 
 
@@ -156,6 +194,8 @@ zip ${QVFLAG} ${TEMP}/Notebook.zip ${UUID_N}.* ${UUID_N}/*
 )
 
 cp ${TEMP}/Notebook.zip .
+
+echo Output written to Notebook.zip 
 
 #DEBUG  find ${TEMP} -ls
 
