@@ -6,6 +6,8 @@ Creates a reMarkable Notebook from multiple PDF files.
 Version
 - V1.1   - All pdf pages are converted, no need to split file ( needs pdfinfo command )
 - V1.2.0 - Some options added: Verbosity, Usage, Version; Cleanup and Checks
+- V2.1.0 - Image formats png/jpg can be directly converted
+           -s option to scale notebook page size
 
 
 ## Sample 
@@ -27,6 +29,8 @@ Run the script followed by the list of PDF files, it will create a Notebook.zip 
 
 ```shell
 $ pdf2rmnotebook 2d-3.pdf 3d-1.pdf shapes-1.pdf
+
+$ pdf2rmnotebook -s 2 flower.png
 ```
 
 ## Thanks
