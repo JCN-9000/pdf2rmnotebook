@@ -185,7 +185,12 @@ done
 
 
 cat ${VARLIB}/UUID_TAIL.content >> ${NB}/${UUID_N}.content
-sed -i "s/%PAGENUM%/${_page}/" ${NB}/${UUID_N}.content
+# sed in macOS need "backup file" argument
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/%PAGENUM%/${_page}/" ${NB}/${UUID_N}.content
+else
+    sed -i "s/%PAGENUM%/${_page}/" ${NB}/${UUID_N}.content
+fi
 #DEBUG  cat ${NB}/${UUID_N}.content
 
 (
