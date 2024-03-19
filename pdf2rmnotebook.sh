@@ -33,6 +33,7 @@ Usage:
 $NAME [options] file.pdf [...]
 options:
   -h    this page (help)
+  -o  Output file name (default: Notebook-<yyyymmdd_hhmm.ss>.zip)
   -q    Less messages to stdout (quiet)
   -s SCALE    Scale value. Def=0.75 
   -v    More messages to stdout (verbose)
@@ -52,14 +53,19 @@ VERBOSE=false
 DEBUG=false
 IMAGE=false
 SCALE=.75
+DEFAULT_OUTFILE="Notebook-$(date +%Y%m%d_%H%M.%S)"
+OUTFILE=""
 
-while getopts "dhiqvs:V" opt
+while getopts "dhiqvs:Vo:" opt
 do
   case $opt in
     d)
       # Fake some values
       DEBUG=true
       NAME=pdf2rmnotebook
+      ;;
+    o)
+      OUTFILE=$OPTARG
       ;;
     q)
       QVFLAG='-q'
@@ -96,6 +102,11 @@ do
   esac
 done
 shift $((OPTIND-1))
+
+if [[ -z "$OUTFILE" ]]
+then
+  OUTFILE=$DEFAULT_OUTFILE
+fi
 
 VARLIB=/var/lib/${NAME}
 test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
@@ -198,9 +209,9 @@ cd ${NB}
 zip ${QVFLAG} ${TEMP}/Notebook.zip ${UUID_N}.* ${UUID_N}/*
 )
 
-cp ${TEMP}/Notebook.zip .
+cp ${TEMP}/Notebook.zip ${OUTFILE}.zip
 
-echo Output written to Notebook.zip 
+echo Output written to $OUTFILE.zip 
 
 #DEBUG  find ${TEMP} -ls
 
