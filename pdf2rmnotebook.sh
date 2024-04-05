@@ -16,11 +16,13 @@
 #       CREATED: 05/26/2021 01:24:45 PM
 #      REVISION: 1.1   : Multi page PDF conversion
 #                1.2.0 : Usage, Verbosity and Version options
+#                1.3.0 : Image inclusion
+#                2.2.0 : option to create reMarkable Notebook .rmn file
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
 
-Version=2.1.0
+Version=2.2.0
 
 NAME=$(basename $0 .sh)
 TEMP=$(mktemp -d)
@@ -30,19 +32,33 @@ Usage() {
 cat <<EOD
 $NAME: $Version
 Usage:
-$NAME [options] file.pdf [...]
-options:
-  -h    this page (help)
-  -o  Output file name (default: Notebook-<yyyymmdd_hhmm.ss>.zip)
-  -q    Less messages to stdout (quiet)
-  -s SCALE    Scale value. Def=0.75 
-  -v    More messages to stdout (verbose)
-  -V    Display version (Version)
+  $NAME [options] file.pdf [...]
+
+Create multi-page reMarkable Notebook file from PDF files
+  * Creates .zip files by default for use with rmapi
+  * Use -r option to create a reMarkable Notebook .rmn file for use with RCU
+
+Options:
+  Switches (no arguments required):
+    -h    Display this help and exit
+    -q    Produce fewer messages to stdout
+    -r    Create a reMarkable Notebook .rmn file (default: zip)
+    -v    Produce more messages to stdout
+    -V    Display version information and exit
+
+  With arguments:
+    -n NAME    Set the rmn Notebook Display Name (default: Notebook-<yyyymmdd_hhmm.ss>)
+               Only used with -r option
+    -o FILE    Set the output filename (default: Notebook-<yyyymmdd_hhmm.ss>.zip)
+    -s SCALE   Set the scale value (default: 0.75) - 0.75 is a good value for A4/Letter PDFs
+
+Example:
+  $NAME -n "My Notebook" -o mynotebook.zip -s 1.0 file.pdf
 EOD
 }
 
 Cleanup() {
-  rm -rf ${TEMP}
+ rm -rf ${TEMP}
 }
 
 # === Main ===
@@ -55,8 +71,11 @@ IMAGE=false
 SCALE=.75
 DEFAULT_OUTFILE="Notebook-$(date +%Y%m%d_%H%M.%S)"
 OUTFILE=""
+EXTENSION=".zip"
+DISPLAY_NAME=$DEFAULT_OUTFILE
+RMN=false
 
-while getopts "dhiqvs:Vo:" opt
+while getopts "dhin:qrvs:Vo:" opt
 do
   case $opt in
     d)
@@ -64,12 +83,20 @@ do
       DEBUG=true
       NAME=pdf2rmnotebook
       ;;
+    n)
+      DISPLAY_NAME=$OPTARG
+      ;;
     o)
       OUTFILE=$OPTARG
       ;;
     q)
       QVFLAG='-q'
       VERBOSE=false
+      ;;
+    r)
+      RMN=true
+      EXTENSION=".rmn"
+      TARARGS="cf"
       ;;
     h)
       Usage
@@ -206,12 +233,42 @@ fi
 
 (
 cd ${NB}
-zip ${QVFLAG} ${TEMP}/Notebook.zip ${UUID_N}.* ${UUID_N}/*
+if [ $RMN = true ]; then
+  if [ $QVFLAG = "-v" ]; then
+    TARARGS="${TARARGS}v"
+  fi
+
+
+  CMOTIME=$(date +%s000) 
+  PAGE=1
+  TYPE="DocumentType"
+  if [ -z "$DISPLAY_NAME" ]; then
+    DISPLAY_NAME=$DEFAULT_OUTFILE
+  fi
+  
+  cat > "${NB}/${UUID_N}.metadata" <<EOF
+  {
+    "createdTime": ${CMOTIME},
+    "lastModified": ${CMOTIME},
+    "lastOpened": ${CMOTIME},
+    "lastOpenedPage": ${PAGE},
+    "parent": "", 
+    "pinned": false,
+    "type": "${TYPE}",
+    "visibleName": "${DISPLAY_NAME}"
+  }
+EOF
+
+  tar $TARARGS ${TEMP}/Notebook$EXTENSION ${UUID_N}.* ${UUID_N}/* 
+else
+  zip ${QVFLAG} ${TEMP}/Notebook$EXTENSION ${UUID_N}.* ${UUID_N}/*
+fi
 )
 
-cp ${TEMP}/Notebook.zip ${OUTFILE}.zip
 
-echo Output written to $OUTFILE.zip 
+cp ${TEMP}/Notebook$EXTENSION ${OUTFILE}$EXTENSION
+
+echo Output written to $OUTFILE$EXTENSION
 
 #DEBUG  find ${TEMP} -ls
 
