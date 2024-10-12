@@ -61,8 +61,9 @@ Create multi-page reMarkable Notebook file from PDF files
   Switches (no arguments required):
     -h    Display this help and exit
     -q    Produce fewer messages to stdout
-    -r    Create a reMarkable Notebook .rmn file (default: zip)
-    -R    Create a reMarkable Notebook .rmdoc file
+    -r    Create a reMarkable Notebook .rmn file
+    -R    Create a reMarkable Notebook .rmdoc file (default)
+    -z    Create a reMarkable Notebook .zip file
     -v    Produce more messages to stdout
     -V    Display version information and exit
 
@@ -84,25 +85,29 @@ Cleanup() {
 # === Main ===
 trap Cleanup EXIT SIGQUIT SIGTERM
 
+umask 0022
+
 QVFLAG='-q'
 VERBOSE=false
 DEBUG=false
 IMAGE=false
 SCALE=.75
-DEFAULT_OUTFILE="Notebook-$(date +%Y%m%d_%H%M.%S)"
-OUTFILE=""
-EXTENSION=".zip"
-DISPLAY_NAME=$DEFAULT_OUTFILE
 RMN=false
-RMDOC=false
 RMC=false
 RMPRO=false
 TARARGS=
+RMZIP=false
+
+RMDOC=true
+EXTENSION=".rmdoc"
+OUTFILE=""
+DEFAULT_OUTFILE="Notebook-$(date +%Y%m%d_%H%M.%S)"
+DISPLAY_NAME=$DEFAULT_OUTFILE
 
 # Get useful helper commands
 RMCEXE=$(command -v rmc)
 
-while getopts "dhimn:PqrRvs:Vo:" opt
+while getopts "dhimn:PqrRvs:Vo:z" opt
 do
   case $opt in
     m)
@@ -161,6 +166,10 @@ do
       echo $NAME: $Version
       exit 0
       ;;
+    z)
+      RMZIP=true
+      EXTENSION=".zip"
+      ;;
     \?)
       echo "Invalid option; -$OPTARG" >&2
       Usage
@@ -202,7 +211,7 @@ EOF
 
 NB=${TEMP}/Notebook
 mkdir ${NB}
-
+G
 _page=0
 UUID_NB=$(uuidgen)   # UUID for Notebook
 
@@ -319,4 +328,23 @@ echo Output written to $OUTFILE$EXTENSION
 
 $DEBUG && { echo "DEBUG: contents of $TEMP: " ; find ${TEMP} -ls ; }
 
+exit 0
+
+## Build Support Files
+
+function f1()
+{
+HCLPAGE=$( cat <<EOF
+pen black 0.1 solid
+line 1 1 156 1
+line 156 1 156 208
+line 156 208 1 208
+line 1 208 1 1
+moveto 0 0
+EOF | base64
+)
+
+}
+
 # vim: ts=2:sw=2:expandtab
+

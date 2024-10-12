@@ -12,9 +12,10 @@ Version
 - V1.1   - All pdf pages are converted, no need to split file ( needs pdfinfo command )
 - V1.2.0 - Some options added: Verbosity, Usage, Version; Cleanup and Checks
 - V2.1.0 - Image formats png/jpg can be directly converted
-    - -s option to scale notebook page size to ~A4 
+    - -s option to scale notebook page size to ~A4
 - V2.2.0 - Convert to `rmn` files compatible with RCU
     - -r option to create `rmn` files
+- V3.0.0 - DEV Adding options for rM Pro, default to .rmdoc format, convert more filetypes
 
 ## Example
 
@@ -28,9 +29,10 @@ The two PDFs are now combined and can be edited on the remarkable using all the 
 ## Requirements
 
 - [drawj2d](https://sourceforge.net/projects/drawj2d/)
-- pdfinfo: from your distribution package manager:  
+- pdfinfo: from your distribution package manager:
   - Debian: poppler-utils
   - Homebrew: poppler
+- [rmc](https://github.com/ricklupton/rmc) optional converter, install via pip
 
 ## Installation
 
@@ -48,6 +50,9 @@ Run the script followed by the list of PDF files, it will create a file that can
 
 **†** rmapi is [deprecated](https://github.com/juruen/rmapi/discussions/313) and no longer supported by the maintainer.
 
+The .rmdoc format is directly uploadable using the USB Web interface of the tablet.
+See [Guide](https://remarkable.guide/tech/usb-web-interface.html)
+
 ```
   pdf2rmnotebook [options] file.pdf [...]
 
@@ -59,7 +64,8 @@ Options:
   Switches (no arguments required):
     -h    Display this help and exit
     -q    Produce fewer messages to stdout
-    -r    Create a reMarkable Notebook .rmn file (default: zip)
+    -r    Create a reMarkable Notebook .rmn file
+    -R    Create a reMarkable Notebook .rmdoc file
     -v    Produce more messages to stdout
     -V    Display version information and exit
 
@@ -77,7 +83,7 @@ Example:
 
 Create a `.zip` file compatible with rmapi:
 
-`$ $ ./pdf2rmnotebook.sh ./example/2d-3.pdf ./example/3d-1.pdf`
+`$ ./pdf2rmnotebook.sh ./example/2d-3.pdf ./example/3d-1.pdf`
 
 Create a `.rmn` file compatible with RCU:
 
@@ -90,6 +96,11 @@ Create a `.rmn` file, set the output filename and set the name that will be disp
 Create a scaled notebook from a png:
 `$ ./pdf2rmnotebook.sh -s 2 ./example/flower.png`
 
-## Thanks
+## Acknowledgements
 
 - [drawj2d](https://sourceforge.net/projects/drawj2d/)
+- [rmapi](https://github.com/juruen/rmapi)†
+- [RCU](http://www.davisr.me/projects/rcu/).
+- [rmc](https://github.com/ricklupton/rmc)
+- rM Community
+
