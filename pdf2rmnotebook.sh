@@ -21,6 +21,7 @@
 #                3.0.0 : Color management for Pro, rmdoc
 #===============================================================================
 
+# NOTES
 #  reMarkable 2: device screen width = 157 mm, height = 209 mm
 #  reMarkable 2: monochrome display, drawj2d will map colours to black, grey or white
 #  reMarkable Pro: device screen width = 179 mm, height = 239 mm. Preview drawj2d -Tscreen -W168 -H239 thales.hcl
@@ -38,6 +39,10 @@
 #  convert pappagallo.pdf -dither FloydSteinberg -remap colormap.png rM-pappagallo.pdf
 
 # ~/Python-Env/rmc/bin/rmc -t rm  -o GrafanaMail.rm GrafanaMail.md
+
+# TODO
+# - Add color management: Colot:Filename => Import filename using Color as pen
+#   Es. if file is named/rferred red:report.md then import text using the red pen
 
 set -o nounset                              # Treat unset variables as an error
 
@@ -82,6 +87,27 @@ Cleanup() {
  rm -rf ${TEMP}
 }
 
+echoW() { echo "WARNING: $@" >&2 ; }
+echoE() { echo "ERROR: $@" >&2 ; }
+echoD() { echo "DEBUG: $@" >&2 ; }
+echoI() { echo "INFO: $@" >&2 ; }
+
+getFileType() {
+  _P=$1
+  FILETYPE=$(file -b --mime-type "${_P}")
+  if [ -z "$FILETYPE" ]
+  then
+    EXT=${_P##*.}     # Guess filetype from extension
+    case $EXT in
+      md)   # Markdown
+        RMC=true
+        FILETYPE='text/markdown'
+        ;;
+    esac
+  fi
+  echo $FILETYPE
+}
+
 # === Main ===
 trap Cleanup EXIT SIGQUIT SIGTERM
 
@@ -107,14 +133,13 @@ DISPLAY_NAME=$DEFAULT_OUTFILE
 # Get useful helper commands
 RMCEXE=$(command -v rmc)
 
-while getopts "dhimn:PqrRvs:Vo:z" opt
+while getopts "cdhin:PqrRvs:Vo:z" opt
 do
   case $opt in
-    m)
-      # Convert file using RMC
+    c) # Convert file using RMC
       if [ -z "$RMCEXE" ]
       then
-        echo "Warning, no RMC Command found, No conversion possible"
+        echoW "No RMC Command found, No conversion possible"
         continue
       fi
       RMC=true
@@ -163,7 +188,7 @@ do
       VERBOSE=true
       ;;
     V)
-      echo $NAME: $Version
+      echoI $NAME: $Version
       exit 0
       ;;
     z)
@@ -171,12 +196,12 @@ do
       EXTENSION=".zip"
       ;;
     \?)
-      echo "Invalid option; -$OPTARG" >&2
+      echoE "Invalid option; -$OPTARG"
       Usage
       exit 1
       ;;
     :)
-      echo "Option -$OPTARG requires an argument." >&2
+      echoE "Option -$OPTARG requires an argument."
       Usage
       exit 1
       ;;
@@ -191,7 +216,7 @@ fi
 
 VARLIB=/var/lib/${NAME}
 test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
-test -d ${VARLIB} || { echo "Error - Incorrect Installation: ${VARLIB} not available" ; exit 1 ; }
+test -d ${VARLIB} || { echoE "Incorrect Installation: ${VARLIB} not available" ; exit 1 ; }
 
 if [[ $# -le 0 ]]
 then
@@ -211,7 +236,7 @@ EOF
 
 NB=${TEMP}/Notebook
 mkdir ${NB}
-G
+
 _page=0
 UUID_NB=$(uuidgen)   # UUID for Notebook
 
@@ -223,20 +248,10 @@ cp ${VARLIB}/UUID_HEAD.content ${NB}/${UUID_NB}.content
 for _P in "$@"
 do
 
-  $VERBOSE && echo Working on file: ${_P}
-  test -f "${_P}" || { echo "${_P}: No such file or directory." ; Usage ; exit 1 ; }
+  $VERBOSE && echoI Working on file: ${_P}
+  test -f "${_P}" || { echoE "${_P}: No such file or directory." ; Usage ; exit 1 ; }
 
-  FILETYPE=$(file -b --mime-type "${_P}")
-  if [ -z "$FILETYPE" ]
-  then
-    EXT=${_P##*.}     # Guess filetype from extension
-    case $EXT in
-      md)   # Markdown
-        RMC=true
-        FILETYPE='text/markdown'
-        ;;
-    esac
-  fi
+  FILETYPE=$( getFileType "${_P}" )
 
   case $FILETYPE in
     image/jpeg | image/png)
@@ -246,6 +261,9 @@ do
     application/pdf )
       # Get Pages from file, will loop over all of them
       read x _NP <<< $(pdfinfo "${_P}" | grep -a Pages: )
+      ;;
+    text/markdown)
+      RMC=true
       ;;
   esac
 
@@ -285,7 +303,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     sed -i "s/%PAGENUM%/${_page}/" ${NB}/${UUID_NB}.content
 fi
-$DEBUG && { echo "DEBUG: Dump of .content " ; cat ${NB}/${UUID_NB}.content ; }
+$DEBUG && { echoD "Dump of .content " ; cat ${NB}/${UUID_NB}.content ; }
 
 (
 cd ${NB}
@@ -324,9 +342,9 @@ fi
 
 cp ${TEMP}/Notebook$EXTENSION ${OUTFILE}$EXTENSION
 
-echo Output written to $OUTFILE$EXTENSION
+echoI Output written to $OUTFILE$EXTENSION
 
-$DEBUG && { echo "DEBUG: contents of $TEMP: " ; find ${TEMP} -ls ; }
+$DEBUG && { echoD "Contents of $TEMP: " ; find ${TEMP} -ls ; }
 
 exit 0
 
