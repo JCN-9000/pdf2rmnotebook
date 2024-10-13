@@ -26,12 +26,12 @@
 #  reMarkable 2: monochrome display, drawj2d will map colours to black, grey or white
 #  reMarkable Pro: device screen width = 179 mm, height = 239 mm. Preview drawj2d -Tscreen -W168 -H239 thales.hcl
 #
-#  reMarkable 2:
+#  reMarkable 2: 1872 x 1404 resolution (226 DPI)
 # Embed page 5 of an A4 sized (297mm x 210mm) pdf file, scale to fit the tablet height (297 * 0.7 = 208mm < 209mm), right justified (9 + 210 * 0.7 = 156mm < 157mm).
 #    moveto 9 0
 #    image article.pdf 5 0 0 0.7
 #
-# reMarkable Pro:
+# reMarkable Pro: 2160 x 1620 resolution (229 PPI)
 # Embed page 5 of an A4 sized (297mm x 210mm) pdf file, scale to fit the tablet height (297 * 0.8 = 238mm < 239mm), right justified (210*0.8 = 168mm <= 179mm - 11mm).
 #     move10 11 0
 #     image article.pdf 5 0 0 0.8
@@ -40,23 +40,19 @@
 
 # ~/Python-Env/rmc/bin/rmc -t rm  -o GrafanaMail.rm GrafanaMail.md
 
-# TODO
-# - Add color management: Colot:Filename => Import filename using Color as pen
-#   Es. if file is named/rferred red:report.md then import text using the red pen
-
 set -o nounset                              # Treat unset variables as an error
 
 Version=3.0.0
 
-NAME=$( basename ${BASH_SOURCE[0]} .sh )
-TEMP=$(mktemp -d)
+name=$( basename ${BASH_SOURCE[0]} .sh )
+tempDir=$(mktemp -d)
 
 # === Functions ===
 Usage() {
 cat <<EOD
-$NAME: $Version
+${name}: $Version
 Usage:
-  $NAME [options] file.pdf [...]
+  ${name} [options] file.pdf [...]
 
 Create multi-page reMarkable Notebook file from PDF files
   * Creates .zip files by default for use with rmapi
@@ -79,12 +75,12 @@ Create multi-page reMarkable Notebook file from PDF files
     -s SCALE   Set the scale value (default: 0.75) - 0.75 is a good value for A4/Letter PDFs
 
 Example:
-  $NAME -n "My Notebook" -o mynotebook.zip -s 1.0 file.pdf
+  ${name} -n "My Notebook" -o mynotebook.zip -s 1.0 file.pdf
 EOD
 }
 
 Cleanup() {
- rm -rf ${TEMP}
+ rm -rf ${tempDir}
 }
 
 echoW() { echo "WARNING: $@" >&2 ; }
@@ -94,18 +90,18 @@ echoI() { echo "INFO: $@" >&2 ; }
 
 getFileType() {
   _P=$1
-  FILETYPE=$(file -b --mime-type "${_P}")
-  if [ -z "$FILETYPE" ]
+  fileType=$(file -b --mime-type "${_P}")
+  if [ -z "${fileType}" ]
   then
     EXT=${_P##*.}     # Guess filetype from extension
     case $EXT in
       md)   # Markdown
         RMC=true
-        FILETYPE='text/markdown'
+        fileType='text/markdown'
         ;;
     esac
   fi
-  echo $FILETYPE
+  echo ${fileType}
 }
 
 # === Main ===
@@ -148,7 +144,7 @@ do
     d)
       # Fake some values
       DEBUG=true
-      NAME=pdf2rmnotebook
+      name=pdf2rmnotebook
       ;;
     n)
       DISPLAY_NAME=$OPTARG
@@ -188,7 +184,7 @@ do
       VERBOSE=true
       ;;
     V)
-      echoI $NAME: $Version
+      echoI ${name}: $Version
       exit 0
       ;;
     z)
@@ -214,8 +210,8 @@ then
   OUTFILE=$DEFAULT_OUTFILE
 fi
 
-VARLIB=/var/lib/${NAME}
-test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${NAME}
+VARLIB=/var/lib/${name}
+test -d ${VARLIB} || VARLIB=$(dirname $0)/var/lib/${name}
 test -d ${VARLIB} || { echoE "Incorrect Installation: ${VARLIB} not available" ; exit 1 ; }
 
 if [[ $# -le 0 ]]
@@ -225,7 +221,7 @@ then
 fi
 
 # Prepare HCL file for image inclusion
-cat > ${TEMP}/page.hcl <<EOF
+cat > ${tempDir}/page.hcl <<EOF
 pen black 0.1 solid
 line 1 1 156 1
 line 156 1 156 208
@@ -234,7 +230,7 @@ line 1 208 1 1
 moveto 0 0
 EOF
 
-NB=${TEMP}/Notebook
+NB=${tempDir}/Notebook
 mkdir ${NB}
 
 _page=0
@@ -251,9 +247,9 @@ do
   $VERBOSE && echoI Working on file: ${_P}
   test -f "${_P}" || { echoE "${_P}: No such file or directory." ; Usage ; exit 1 ; }
 
-  FILETYPE=$( getFileType "${_P}" )
+  fileType=$( getFileType "${_P}" )
 
-  case $FILETYPE in
+  case ${fileType} in
     image/jpeg | image/png)
       _NP=1
       IMAGE=true
@@ -271,21 +267,21 @@ do
     while [[ ${_PP} -le ${_NP} ]]
     do
       test ${_page} -ne 0 && echo , >> ${NB}/${UUID_NB}.content
-      cp ${TEMP}/page.hcl ${TEMP}/P_${_page}.hcl
+      cp ${tempDir}/page.hcl ${tempDir}/P_${_page}.hcl
 
-      case $FILETYPE in
+      case ${fileType} in
         image/jpeg | image/png )
-          echo "moveto 12 12"  >>  ${TEMP}/P_${_page}.hcl
-          echo "image {${_P}} 200 0 0 $SCALE " >> ${TEMP}/P_${_page}.hcl
+          echo "moveto 12 12"  >>  ${tempDir}/P_${_page}.hcl
+          echo "image {${_P}} 200 0 0 $SCALE " >> ${tempDir}/P_${_page}.hcl
           ;;
         application/pdf )
           # Scale page: Usually PDF is A4/Letter, rM is smaller
-          echo "image {${_P}} ${_PP} 0 0 $SCALE" >> ${TEMP}/P_${_page}.hcl
+          echo "image {${_P}} ${_PP} 0 0 $SCALE" >> ${tempDir}/P_${_page}.hcl
           ;;
       esac
 
       UUID_P=$(uuidgen)   # Notebook Pages are named using the UUID from .content file
-      drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_NB}/${UUID_P}.rm ${TEMP}/P_${_page}.hcl
+      drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_NB}/${UUID_P}.rm ${tempDir}/P_${_page}.hcl
       cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_NB}/${UUID_P}-metadata.json
       echo -n \"${UUID_P}\" >> ${NB}/${UUID_NB}.content
 
@@ -333,18 +329,18 @@ cd ${NB}
 EOF
 
 if [ $RMN = true ]; then
-  tar ${TARARGS} ${TEMP}/Notebook$EXTENSION ${UUID_NB}.* ${UUID_NB}/*
+  tar ${TARARGS} ${tempDir}/Notebook$EXTENSION ${UUID_NB}.* ${UUID_NB}/*
 else
-  zip ${QVFLAG} ${TEMP}/Notebook$EXTENSION ${UUID_NB}.* ${UUID_NB}/*
+  zip ${QVFLAG} ${tempDir}/Notebook$EXTENSION ${UUID_NB}.* ${UUID_NB}/*
 fi
 )
 
 
-cp ${TEMP}/Notebook$EXTENSION ${OUTFILE}$EXTENSION
+cp ${tempDir}/Notebook$EXTENSION ${OUTFILE}$EXTENSION
 
 echoI Output written to $OUTFILE$EXTENSION
 
-$DEBUG && { echoD "Contents of $TEMP: " ; find ${TEMP} -ls ; }
+$DEBUG && { echoD "Contents of ${tempDir}: " ; find ${tempDir} -ls ; }
 
 exit 0
 
