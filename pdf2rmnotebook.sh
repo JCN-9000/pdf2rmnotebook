@@ -358,9 +358,6 @@ do
         text/markdown )
           textFile ${_P} ${tempDir}/P_${_page}.hcl
           ;;
-        text/markdown )
-          textFile ${_P} ${TEMP}/P_${_page}.hcl
-          ;;
       esac
 
       UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
@@ -443,6 +440,4 @@ exit 0
 ## Build Support Files
 
 # vim:set ai et sts=2 sw=2:expandtab
-
-# vim:set ai et sts=2 sw=2 tw=80:
 

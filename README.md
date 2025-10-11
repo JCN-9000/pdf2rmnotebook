@@ -19,7 +19,8 @@ Version
 - V2.2.1 - Fix duplicate pages. The .json file is not needed (anymore?) to give a name to the layer. Name is embedded in .rm file for each page.
 - V3.0.0 - DEV branch - Adding options for rM Pro, default to .rmdoc format, convert more filetypes
 - V3.1.0 - Convert text files using rmc
-- V3.2.0 : Merge aestethic, RMC and Color features ...
+- V3.2.0 - Merge aestethic, RMC and Color features ...
+- V3.3.0 - Optimize sSize for rM Pro Move
 
 
 ## Example
