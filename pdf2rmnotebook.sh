@@ -22,6 +22,7 @@
 #                3.0.0 : Color management for Pro, rmdoc
 #                3.1.0 : Color management for text files imorted
 #                3.2.0 : Merge aestethic, features ...
+#                3.3.0 : Paper Pro Move
 #===============================================================================
 
 # NOTES
@@ -29,6 +30,9 @@
 #  reMarkable 2: monochrome display, drawj2d will map colours to black, grey or white
 #  reMarkable Pro: device screen width = 179 mm, height = 239 mm.
 #     Preview drawj2d -Tscreen -W168 -H239 file.hcl
+#  reMarkable Paper Pro Move: Resolution: 1696 x 954 (264 PPI) Color
+#     A4 scale to fit in landscape mode : 0.309
+#     A4 scale to fit in portrait mode  : 0.437
 #
 #  reMarkable 2: 1872 x 1404 resolution (226 DPI)
 # Embed page 5 of an A4 sized (297mm x 210mm) pdf file, scale to fit the tablet height (297 * 0.7 = 208mm < 209mm), right justified (9 + 210 * 0.7 = 156mm < 157mm).
@@ -52,7 +56,7 @@
 
 set -o nounset                              # Treat unset variables as an error
 
-Version=3.2.0
+Version=3.3.0
 
 name=$( basename ${BASH_SOURCE[0]} .sh )
 tempDir=$(mktemp -d)
@@ -79,6 +83,8 @@ Create multi-page reMarkable Notebook file from PDF files
     -R    Create a reMarkable Notebook .rmdoc file (default)
     -z    Create a reMarkable Notebook .zip file
     -c    Convert file using RMC (if available)
+    -P    Optimize size for reMarkable Pro
+    -M    Optimize size for reMarkable Pro Move
 
   With arguments:
     -n NAME    Set the Notebook Display Name (default: Notebook-<yyyymmdd_hhmm.ss>)
@@ -173,7 +179,7 @@ COLOR=black
 # Get useful helper commands
 RMCEXE=$(command -v rmc)
 
-while getopts "cC:dhimn:PqrRvs:Vo:z" opt
+while getopts "cC:dhimMn:PqrRvs:Vo:z" opt
 do
   case $opt in
     c) # Convert file using RMC
@@ -197,6 +203,10 @@ do
       # RMC Converted file
       RMC=true
       EXTENSION=".rmdoc"
+      ;;
+    M)  # Output is for rM Pro Move
+      RMPRO=true
+      SCALE=.43
       ;;
     n)
       DISPLAY_NAME=$OPTARG
