@@ -1,18 +1,18 @@
-#!/bin/bash - 
+#!/bin/bash -
 #===============================================================================
 #
 #          FILE: ./pdf2rmnotebook.sh
-# 
+#
 #         USAGE: ./pdf2rmnotebook.sh [options] file.pdf [...]
-# 
+#
 #   DESCRIPTION: Build multi page reMarkable Notebook from PDF Files
-# 
+#
 #       OPTIONS: See Usage()
 #  REQUIREMENTS: drawj2d, pdfinfo
 #          BUGS: ---
 #         NOTES: ---
 #        AUTHOR: Alberto Varesio (JCN), jcn9000@gmail.com
-#  ORGANIZATION: 
+#  ORGANIZATION:
 #       CREATED: 05/26/2021 01:24:45 PM
 #      REVISION: 1.1   : Multi page PDF conversion
 #                1.2.0 : Usage, Verbosity and Version options
@@ -211,7 +211,8 @@ do
   #  which are used internally in the rM (see ~/.local/share/remarkable/xochitl/ )
   #  It is indeed easier to have page numbers instead of random UUIDs referenced elsewhere
       drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_N}/${_page}.rm ${TEMP}/P_${_page}.hcl
-      cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_N}/${_page}-metadata.json
+# Fix issue #18
+#     cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_N}/${_page}-metadata.json
 
       echo -n \"${UUID_P}\" >> ${NB}/${UUID_N}.content
 
@@ -239,27 +240,27 @@ if [ $RMN = true ]; then
   fi
 
 
-  CMOTIME=$(date +%s000) 
+  CMOTIME=$(date +%s000)
   PAGE=1
   TYPE="DocumentType"
   if [ -z "$DISPLAY_NAME" ]; then
     DISPLAY_NAME=$DEFAULT_OUTFILE
   fi
-  
+
   cat > "${NB}/${UUID_N}.metadata" <<EOF
   {
     "createdTime": ${CMOTIME},
     "lastModified": ${CMOTIME},
     "lastOpened": ${CMOTIME},
     "lastOpenedPage": ${PAGE},
-    "parent": "", 
+    "parent": "",
     "pinned": false,
     "type": "${TYPE}",
     "visibleName": "${DISPLAY_NAME}"
   }
 EOF
 
-  tar $TARARGS ${TEMP}/Notebook$EXTENSION ${UUID_N}.* ${UUID_N}/* 
+  tar $TARARGS ${TEMP}/Notebook$EXTENSION ${UUID_N}.* ${UUID_N}/*
 else
   zip ${QVFLAG} ${TEMP}/Notebook$EXTENSION ${UUID_N}.* ${UUID_N}/*
 fi

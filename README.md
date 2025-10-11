@@ -12,9 +12,11 @@ Version
 - V1.1   - All pdf pages are converted, no need to split file ( needs pdfinfo command )
 - V1.2.0 - Some options added: Verbosity, Usage, Version; Cleanup and Checks
 - V2.1.0 - Image formats png/jpg can be directly converted
-    - -s option to scale notebook page size to ~A4 
+    - -s option to scale notebook page size to ~A4
 - V2.2.0 - Convert to `rmn` files compatible with RCU
     - -r option to create `rmn` files
+- V2.2.1 - Fix duplicate pages. The .json file is not needed (anymore?) to give a name to the layer. Name is embedded in .rm file for each page.
+
 
 ## Example
 
@@ -28,7 +30,7 @@ The two PDFs are now combined and can be edited on the remarkable using all the 
 ## Requirements
 
 - [drawj2d](https://sourceforge.net/projects/drawj2d/)
-- pdfinfo: from your distribution package manager:  
+- pdfinfo: from your distribution package manager:
   - Debian: poppler-utils
   - Homebrew: poppler
 
