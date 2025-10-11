@@ -36,12 +36,12 @@ The two PDFs are now combined and can be edited on the remarkable using all the 
 
 ## Installation
 
-Clone this repo locally and run the `pdf2rmnnotebook.sh` script. Optionally, add the script and the `./var` directory somewhere in your `$PATH`.
+Clone this repo locally and run the `pdf2rmnotebook.sh` script. Optionally, add the script and the `./var` directory somewhere in your `$PATH`.
 
 Optional *nix install:
 
-```
-$ sudo cp ./var/lib/pdfrmnotebook /var/lib
+```bash
+sudo cp -r ./var/lib/pdf2rmnotebook /var/lib
 ```
 
 ## Usage
@@ -79,7 +79,7 @@ Example:
 
 Create a `.zip` file compatible with rmapi:
 
-`$ $ ./pdf2rmnotebook.sh ./example/2d-3.pdf ./example/3d-1.pdf`
+`$ ./pdf2rmnotebook.sh ./example/2d-3.pdf ./example/3d-1.pdf`
 
 Create a `.rmn` file compatible with RCU:
 
