@@ -45,8 +45,8 @@ Clone this repo locally and run the `pdf2rmnotebook.sh` script. Optionally, add 
 
 Optional *nix install:
 
-```
-$ sudo cp ./var/lib/pdfrmnotebook /var/lib
+```bash
+sudo cp -r ./var/lib/pdf2rmnotebook /var/lib
 ```
 
 ## Usage

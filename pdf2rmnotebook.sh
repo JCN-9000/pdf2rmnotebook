@@ -146,6 +146,30 @@ function textFile(){
     rm ${_HCL}.tmp
 }
 
+# Simple ASCII text file is embedded into HCL and then converted
+textFile(){
+  # $1 = Filename
+  # $2 = HCL Page
+
+  _F=$1
+  _HCL=$2
+
+  # Overwrite default page settings
+    echo pen $COLOR 0.1 solid > ${_HCL}
+    echo font Lines up 3.5 >> ${_HCL}
+    echo moveto 12 8 >> ${_HCL}
+
+    cat ${_F} >> ${_HCL}.tmp
+    sed -i 's/"/\\"/g'  ${_HCL}.tmp
+    sed -i 's/`/\\`/g'  ${_HCL}.tmp
+    sed -i 's/]/\\]/g' ${_HCL}.tmp
+    sed -i 's/\[/\\[/g' ${_HCL}.tmp
+    sed -i 's/\$/\\$/g' ${_HCL}.tmp
+    sed -i 's/\(.*\)/text "\1" 140/' ${_HCL}.tmp
+    cat ${_HCL}.tmp >> ${_HCL}
+    rm ${_HCL}.tmp
+}
+
 # === Main ===
 trap Cleanup EXIT SIGQUIT SIGTERM
 
@@ -334,6 +358,9 @@ do
         text/markdown )
           textFile ${_P} ${tempDir}/P_${_page}.hcl
           ;;
+        text/markdown )
+          textFile ${_P} ${TEMP}/P_${_page}.hcl
+          ;;
       esac
 
       UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
@@ -416,4 +443,6 @@ exit 0
 ## Build Support Files
 
 # vim:set ai et sts=2 sw=2:expandtab
+
+# vim:set ai et sts=2 sw=2 tw=80:
 
