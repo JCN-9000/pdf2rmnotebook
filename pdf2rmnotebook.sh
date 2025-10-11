@@ -50,9 +50,9 @@
 # everything will become too complicated. please use multiple separate
 # conversions, merge on the device.
 
-set -o nounset                              # Treat unset variables as an error
+set -euo pipefail                           # Exit on error, unset var, pipe fail
 
-Version=3.2.0
+Version=3.2.1
 
 name=$( basename ${BASH_SOURCE[0]} .sh )
 tempDir=$(mktemp -d)
@@ -146,30 +146,6 @@ function textFile(){
     rm ${_HCL}.tmp
 }
 
-# Simple ASCII text file is embedded into HCL and then converted
-textFile(){
-  # $1 = Filename
-  # $2 = HCL Page
-
-  _F=$1
-  _HCL=$2
-
-  # Overwrite default page settings
-    echo pen $COLOR 0.1 solid > ${_HCL}
-    echo font Lines up 3.5 >> ${_HCL}
-    echo moveto 12 8 >> ${_HCL}
-
-    cat ${_F} >> ${_HCL}.tmp
-    sed -i 's/"/\\"/g'  ${_HCL}.tmp
-    sed -i 's/`/\\`/g'  ${_HCL}.tmp
-    sed -i 's/]/\\]/g' ${_HCL}.tmp
-    sed -i 's/\[/\\[/g' ${_HCL}.tmp
-    sed -i 's/\$/\\$/g' ${_HCL}.tmp
-    sed -i 's/\(.*\)/text "\1" 140/' ${_HCL}.tmp
-    cat ${_HCL}.tmp >> ${_HCL}
-    rm ${_HCL}.tmp
-}
-
 # === Main ===
 trap Cleanup EXIT SIGQUIT SIGTERM
 
@@ -193,6 +169,11 @@ DEFAULT_OUTFILE="Notebook-$(date +%Y%m%d_%H%M.%S)"
 DISPLAY_NAME=$DEFAULT_OUTFILE
 
 COLOR=black
+
+# === Dependency Checks ===
+command -v drawj2d >/dev/null || { echoE "Dependency 'drawj2d' not found. Please install it (see https://sourceforge.net/projects/drawj2d/)."; exit 1; }
+command -v pdfinfo >/dev/null || { echoE "Dependency 'pdfinfo' not found. Please install 'poppler-utils' or 'poppler'."; exit 1; }
+command -v uuidgen >/dev/null || { echoE "Dependency 'uuidgen' not found. Please install 'util-linux' or equivalent."; exit 1; }
 
 # Get useful helper commands
 RMCEXE=$(command -v rmc)
