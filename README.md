@@ -52,9 +52,7 @@ sudo cp -r ./var/lib/pdf2rmnotebook /var/lib
 
 ## Usage
 
-Run the script followed by the list of PDF files, it will create a file that can be sent to the reMarkable using [rmapi](https://github.com/juruen/rmapi)† or [RCU](http://www.davisr.me/projects/rcu/).
-
-**†** rmapi is [deprecated](https://github.com/juruen/rmapi/discussions/313) and no longer supported by the maintainer.
+Run the script followed by the list of PDF files, it will create a file that can be sent to the reMarkable using [rmapi](https://github.com/ddvk/rmapi) or [RCU](http://www.davisr.me/projects/rcu/).
 
 The .rmdoc format is directly uploadable using the USB Web interface of the tablet.
 See [Guide](https://remarkable.guide/tech/usb-web-interface.html)
@@ -105,7 +103,8 @@ Create a scaled notebook from a png:
 ## Acknowledgements
 
 - [drawj2d](https://sourceforge.net/projects/drawj2d/)
-- [rmapi](https://github.com/juruen/rmapi)†
+- [rmapi](https://github.com/ddvk/rmapi) (maintained version by ddvk)
+- [rmapi](https://github.com/juruen/rmapi)† (original version by juruen)
 - [RCU](http://www.davisr.me/projects/rcu/).
 - [rmc](https://github.com/ricklupton/rmc)
 - rM Community
