@@ -16,7 +16,8 @@ Version
     - -s option to scale notebook page size to ~A4
 - V2.2.0 - Convert to `rmn` files compatible with RCU
     - -r option to create `rmn` files
-- V3.0.0 - DEV Adding options for rM Pro, default to .rmdoc format, convert more filetypes
+- V2.2.1 - Fix duplicate pages. The .json file is not needed (anymore?) to give a name to the layer. Name is embedded in .rm file for each page.
+- V3.0.0 - DEV branch - Adding options for rM Pro, default to .rmdoc format, convert more filetypes
 
 ## Example
 
@@ -37,12 +38,12 @@ The two PDFs are now combined and can be edited on the remarkable using all the 
 
 ## Installation
 
-Clone this repo locally and run the `pdf2rmnnotebook.sh` script. Optionally, add the script and the `./var` directory somewhere in your `$PATH`.
+Clone this repo locally and run the `pdf2rmnotebook.sh` script. Optionally, add the script and the `./var` directory somewhere in your `$PATH`.
 
 Optional *nix install:
 
 ```
-$ sudo cp ./var/lib/pdfrmnotebook /var/lib
+sudo cp ./var/lib/pdfrmnotebook /var/lib
 ```
 
 ## Usage

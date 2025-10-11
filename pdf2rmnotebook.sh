@@ -282,7 +282,8 @@ do
 
       UUID_P=$(uuidgen)   # Notebook Pages are named using the UUID from .content file
       drawj2d ${QVFLAG} -T rm -o ${NB}/${UUID_NB}/${UUID_P}.rm ${tempDir}/P_${_page}.hcl
-      cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_NB}/${UUID_P}-metadata.json
+# Fix for issue #18 - Json file not needed since causes duplicated pages.
+#      cp ${VARLIB}/UUID_PAGE-metadata.json ${NB}/${UUID_NB}/${UUID_P}-metadata.json
       echo -n \"${UUID_P}\" >> ${NB}/${UUID_NB}.content
 
       _PP=$(( $_PP + 1 ))
@@ -338,7 +339,7 @@ fi
 
 cp ${tempDir}/Notebook$EXTENSION ${OUTFILE}$EXTENSION
 
-echoI Output written to $OUTFILE$EXTENSION
+echo Output written to $OUTFILE$EXTENSION
 
 $DEBUG && { echoD "Contents of ${tempDir}: " ; find ${tempDir} -ls ; }
 
