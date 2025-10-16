@@ -3,6 +3,7 @@
 [![rm1](https://img.shields.io/badge/rM1-supported-green)](https://remarkable.com/store/remarkable)
 [![rm2](https://img.shields.io/badge/rM2-supported-green)](https://remarkable.com/store/remarkable-2)
 [![rmPro](https://img.shields.io/badge/rMPro-supported-green)](https://remarkable.com/store/remarkable-paper/pro)
+[![rmProMove](https://img.shields.io/badge/rMProMove-supported-green)](https://remarkable.com/products/remarkable-paper/pro-move)
 [![Discord](https://img.shields.io/discord/385916768696139794.svg?label=reMarkable&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ATqQGfu)
 
 Creates a reMarkable Notebook from multiple PDF or PNG files compatible with RCU and rmapi.
@@ -105,7 +106,8 @@ Create a scaled notebook from a png:
 ## Acknowledgements
 
 - [drawj2d](https://sourceforge.net/projects/drawj2d/)
-- [rmapi](https://github.com/juruen/rmapi)†
+- [rmapi](https://github.com/ddvk/rmapi) (maintained version by ddvk)
+- [rmapi](https://github.com/juruen/rmapi)† (original version by juruen)
 - [RCU](http://www.davisr.me/projects/rcu/).
 - [rmc](https://github.com/ricklupton/rmc)
 - rM Community
