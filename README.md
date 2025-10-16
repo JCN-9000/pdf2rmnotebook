@@ -3,6 +3,7 @@
 [![rm1](https://img.shields.io/badge/rM1-supported-green)](https://remarkable.com/store/remarkable)
 [![rm2](https://img.shields.io/badge/rM2-supported-green)](https://remarkable.com/store/remarkable-2)
 [![rmPro](https://img.shields.io/badge/rMPro-supported-green)](https://remarkable.com/store/remarkable-paper/pro)
+[![rmProMove](https://img.shields.io/badge/rMProMove-supported-green)](https://remarkable.com/products/remarkable-paper/pro-move)
 [![Discord](https://img.shields.io/discord/385916768696139794.svg?label=reMarkable&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ATqQGfu)
 
 Creates a reMarkable Notebook from multiple PDF or PNG files compatible with RCU and rmapi.
