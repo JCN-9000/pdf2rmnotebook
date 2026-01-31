@@ -52,7 +52,7 @@
 
 set -euo pipefail                           # Exit on error, unset var, pipe fail
 
-Version=3.2.1
+Version=3.2.2
 
 name=$( basename ${BASH_SOURCE[0]} .sh )
 tempDir=$(mktemp -d)
