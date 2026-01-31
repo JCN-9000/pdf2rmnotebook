@@ -292,6 +292,7 @@ mkdir ${NB}
 
 _page=0
 UUID_NB=$(uuidgen)   # UUID for Notebook
+UUID_NB=${UUID_NB,,} # Make it lowercase for MAC
 
 mkdir ${NB}/${UUID_NB}
 #cp ${VARLIB}/UUID.pagedata ${NB}/${UUID_NB}.pagedata
@@ -342,6 +343,7 @@ do
       esac
 
       UUID_P=$(uuidgen)   # Notebook Pages should be named using the UUID from .content file
+      UUID_P=${UUID_P,,}  # make it lowercase for MAC
   #  rmapi interface to reMarkable cloud renames pages from UUID to page number while up/downloading
   #  so we need to use the same convention in naming pages: 0.rm 1.rm ... instead of UUIDs
   #  which are used internally in the rM (see ~/.local/share/remarkable/xochitl/ )
